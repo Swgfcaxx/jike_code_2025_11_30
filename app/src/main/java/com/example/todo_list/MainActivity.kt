@@ -7,6 +7,7 @@ import android.widget.EditText
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.todo_list.ui.ListItem
 import com.example.todo_list.ui.TodoAdapter
 import com.example.todo_list.viewmodel.TodoViewModel
 
@@ -38,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         // 初始化适配器
         adapter = TodoAdapter(
-            todos = emptyList(),
+            items = emptyList(),
             onDeleteClick = {todoId ->
                 todoViewModel.deleteTodo(todoId)
             },
@@ -48,10 +49,20 @@ class MainActivity : AppCompatActivity() {
         )
         recyclerView.adapter = adapter
 
-        //观察 todo 列表数据变化
-        todoViewModel.todoList.observe(this){
+        // 观察分组后的 todo 列表数据变化(只观察 分组 title 的变化就可以了)
+        todoViewModel.groupedTodoList.observe(this) {
+            // 将分组数据转换为 ListItem 列表
+            val items = mutableListOf<ListItem>()
+            it.forEach { (title, todos) ->
+                // 添加分组标题
+                items.add(ListItem.GroupHeader(title))
+                // 添加该分组下的所有待办事项
+                todos.forEach { todo ->
+                    items.add(ListItem.TodoItem(todo))
+                }
+            }
             // 更新适配器数据
-            adapter.updateTodos(it)
+            adapter.updateItems(items)
         }
 
 

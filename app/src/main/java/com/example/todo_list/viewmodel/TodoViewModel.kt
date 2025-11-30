@@ -21,6 +21,12 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
     // 公开不可变 LiveData，供 View 层观察（防止外部修改数据）
     val todoList: LiveData<MutableList<Todo>> = _todoList
 
+    // 私有可变 LiveData，存储分组后的 todo 集合
+    private val _groupedTodoList = MutableLiveData<Map<String, List<Todo>>>(emptyMap())
+
+    // 公开不可变 LiveData，供 View 层观察分组数据
+    val groupedTodoList: LiveData<Map<String, List<Todo>>> = _groupedTodoList
+
     // 初始化时加载数据
     init {
         updateTodoList()
@@ -61,11 +67,15 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
     // 更新 todo 列表
     private fun updateTodoList(){
         viewModelScope.launch(Dispatchers.Main) {
-            _todoList.value = todoDao.getAllTodos().toMutableList()
+            val allTodos = todoDao.getAllTodos()
+            _todoList.value = allTodos.toMutableList()
+            // 按照完整 title 分组
+            _groupedTodoList.value = allTodos.groupBy {
+                it.title.ifEmpty { "#" }
+            }.toSortedMap()
         }
     }
 }
