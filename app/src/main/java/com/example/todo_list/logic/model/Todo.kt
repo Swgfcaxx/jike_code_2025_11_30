@@ -1,7 +1,9 @@
 package com.example.todo_list.logic.model
 
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
+@Serializable
 data class Todo(
     // 唯一标识（用UUID或自增ID，避免重复）
     val id: String = UUID.randomUUID().toString(),

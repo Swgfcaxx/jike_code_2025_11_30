@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // 初始化 ViewModel
-        todoViewModel = ViewModelProvider(this)[TodoViewModel::class.java]
+        todoViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[TodoViewModel::class.java]
 
         // 初始化 UI 组件
         titleEditText = findViewById(R.id.todo_title_edittext)

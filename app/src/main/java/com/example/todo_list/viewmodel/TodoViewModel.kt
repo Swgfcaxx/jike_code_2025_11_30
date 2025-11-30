@@ -1,8 +1,9 @@
 package com.example.todo_list.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todo_list.logic.dao.TodoDao
 import com.example.todo_list.logic.model.Todo
@@ -10,15 +11,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class TodoViewModel : ViewModel() {
+class TodoViewModel(application: Application) : AndroidViewModel(application) {
     // TodoViewModel -> TodoDao -> Todo
-    private val todoDao = TodoDao()
+    private val todoDao = TodoDao(application)
 
     // 私有可变 LiveData，存储 todo 集合（仅 ViewModel 内部可修改）
     private val _todoList = MutableLiveData<MutableList<Todo>>(mutableListOf())
 
     // 公开不可变 LiveData，供 View 层观察（防止外部修改数据）
     val todoList: LiveData<MutableList<Todo>> = _todoList
+
+    // 初始化时加载数据
+    init {
+        updateTodoList()
+    }
 
     fun addTodo(title: String, description: String? = null){
         viewModelScope.launch(Dispatchers.IO) {
